@@ -1,0 +1,1091 @@
+{
+  "address": "Hpxy39igcTdXQ3s9EECuCtQH4VCdje6hMWDH1ZVdMA7h",
+  "metadata": {
+    "name": "vote",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "end",
+      "discriminator": [
+        180,
+        160,
+        249,
+        217,
+        194,
+        121,
+        70,
+        16
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "election",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  108,
+                  101,
+                  99,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "election.authority",
+                "account": "Election"
+              },
+              {
+                "kind": "account",
+                "path": "election.id",
+                "account": "Election"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "election",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  108,
+                  101,
+                  99,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              },
+              {
+                "kind": "arg",
+                "path": "election_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "election_id",
+          "type": "string"
+        },
+        {
+          "name": "election_name",
+          "type": "string"
+        },
+        {
+          "name": "candidates",
+          "type": {
+            "vec": "pubkey"
+          }
+        },
+        {
+          "name": "num_winners",
+          "type": "u8"
+        },
+        {
+          "name": "num_plus_votes",
+          "type": "u8"
+        },
+        {
+          "name": "num_minus_votes",
+          "type": "u8"
+        },
+        {
+          "name": "allowed_voter_types",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "UserType"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "register_voter",
+      "discriminator": [
+        229,
+        124,
+        185,
+        99,
+        118,
+        51,
+        226,
+        6
+      ],
+      "accounts": [
+        {
+          "name": "voter",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "election",
+          "writable": true
+        },
+        {
+          "name": "user_verification",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  99,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "voter"
+              }
+            ]
+          }
+        },
+        {
+          "name": "election_voter",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  108,
+                  101,
+                  99,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  118,
+                  111,
+                  116,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "election"
+              },
+              {
+                "kind": "account",
+                "path": "voter"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_voter_status",
+      "discriminator": [
+        231,
+        138,
+        163,
+        168,
+        81,
+        216,
+        139,
+        92
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "election"
+        },
+        {
+          "name": "election_voter",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  108,
+                  101,
+                  99,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  118,
+                  111,
+                  116,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "election"
+              },
+              {
+                "kind": "account",
+                "path": "election_voter.voter",
+                "account": "ElectionVoter"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_status",
+          "type": {
+            "defined": {
+              "name": "VoterStatus"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "verify_user",
+      "discriminator": [
+        127,
+        54,
+        157,
+        106,
+        85,
+        167,
+        116,
+        119
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "user_verification",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  99,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "id_number",
+          "type": "string"
+        },
+        {
+          "name": "user_type",
+          "type": {
+            "defined": {
+              "name": "UserType"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "vote",
+      "discriminator": [
+        227,
+        110,
+        155,
+        23,
+        136,
+        126,
+        172,
+        25
+      ],
+      "accounts": [
+        {
+          "name": "voter",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "election",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  108,
+                  101,
+                  99,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "election.authority",
+                "account": "Election"
+              },
+              {
+                "kind": "account",
+                "path": "election.id",
+                "account": "Election"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_verification",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  99,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "voter"
+              }
+            ]
+          }
+        },
+        {
+          "name": "election_voter",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  108,
+                  101,
+                  99,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  118,
+                  111,
+                  116,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "election"
+              },
+              {
+                "kind": "account",
+                "path": "voter"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ballot",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  108,
+                  108,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "election"
+              },
+              {
+                "kind": "account",
+                "path": "voter"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "plus_votes",
+          "type": "bytes"
+        },
+        {
+          "name": "minus_votes",
+          "type": "bytes"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Ballot",
+      "discriminator": [
+        3,
+        232,
+        121,
+        204,
+        232,
+        137,
+        138,
+        164
+      ]
+    },
+    {
+      "name": "Election",
+      "discriminator": [
+        68,
+        191,
+        164,
+        85,
+        35,
+        105,
+        152,
+        202
+      ]
+    },
+    {
+      "name": "ElectionVoter",
+      "discriminator": [
+        156,
+        42,
+        169,
+        232,
+        244,
+        51,
+        177,
+        98
+      ]
+    },
+    {
+      "name": "UserVerification",
+      "discriminator": [
+        171,
+        133,
+        79,
+        212,
+        195,
+        124,
+        153,
+        6
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "ElectionVoterStatusChanged",
+      "discriminator": [
+        103,
+        126,
+        41,
+        120,
+        161,
+        83,
+        41,
+        34
+      ]
+    },
+    {
+      "name": "UserVerified",
+      "discriminator": [
+        191,
+        18,
+        15,
+        86,
+        86,
+        109,
+        153,
+        63
+      ]
+    },
+    {
+      "name": "VoterRegistered",
+      "discriminator": [
+        184,
+        179,
+        209,
+        46,
+        125,
+        60,
+        51,
+        197
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "ElectionNotActive",
+      "msg": "Election is not active"
+    },
+    {
+      "code": 6001,
+      "name": "AlreadyVoted",
+      "msg": "Voter has already cast their ballot"
+    },
+    {
+      "code": 6002,
+      "name": "TooManyPlusVotes",
+      "msg": "Too many plus votes"
+    },
+    {
+      "code": 6003,
+      "name": "TooManyMinusVotes",
+      "msg": "Too many minus votes"
+    },
+    {
+      "code": 6004,
+      "name": "InsufficientPlusVotes",
+      "msg": "Must cast at least 2 plus votes to use minus votes"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidCandidate",
+      "msg": "Invalid candidate index"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidCandidateCount",
+      "msg": "Invalid number of candidates (1-50)"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidWinnerCount",
+      "msg": "Invalid number of winners"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidPlusVoteCount",
+      "msg": "Invalid number of plus votes"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidMinusVoteCount",
+      "msg": "Number of minus votes must be less than plus votes"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidNameLength",
+      "msg": "Election name must be between 1 and 50 characters"
+    },
+    {
+      "code": 6011,
+      "name": "DuplicateCandidates",
+      "msg": "Duplicate candidates not allowed"
+    },
+    {
+      "code": 6012,
+      "name": "DuplicateVotes",
+      "msg": "Duplicate votes not allowed"
+    },
+    {
+      "code": 6013,
+      "name": "OverlappingVotes",
+      "msg": "Cannot vote for same candidate with plus and minus"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidElectionId",
+      "msg": "Election ID must be between 1 and 32 characters"
+    },
+    {
+      "code": 6015,
+      "name": "Unauthorized",
+      "msg": "You are not authorized to modify this Election details"
+    },
+    {
+      "code": 6016,
+      "name": "UserTypeNotAllowed",
+      "msg": "User type not allowed for this election"
+    },
+    {
+      "code": 6017,
+      "name": "InvalidVoterTypes",
+      "msg": "Election must allow at least one voter type"
+    }
+  ],
+  "types": [
+    {
+      "name": "Ballot",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "voter",
+            "type": "pubkey"
+          },
+          {
+            "name": "election",
+            "type": "pubkey"
+          },
+          {
+            "name": "plus_votes",
+            "type": "bytes"
+          },
+          {
+            "name": "minus_votes",
+            "type": "bytes"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Candidate",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "address",
+            "type": "pubkey"
+          },
+          {
+            "name": "plus_votes",
+            "type": "i64"
+          },
+          {
+            "name": "minus_votes",
+            "type": "i64"
+          },
+          {
+            "name": "rank",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Election",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "num_winners",
+            "type": "u8"
+          },
+          {
+            "name": "num_plus_votes",
+            "type": "u8"
+          },
+          {
+            "name": "num_minus_votes",
+            "type": "u8"
+          },
+          {
+            "name": "allowed_voter_types",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "UserType"
+                }
+              }
+            }
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "ElectionStatus"
+              }
+            }
+          },
+          {
+            "name": "start_time",
+            "type": "i64"
+          },
+          {
+            "name": "end_time",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "total_voters",
+            "type": "u32"
+          },
+          {
+            "name": "candidates",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Candidate"
+                }
+              }
+            }
+          },
+          {
+            "name": "winners",
+            "type": {
+              "vec": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ElectionStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Created"
+          },
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Ended"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ElectionVoter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "voter",
+            "type": "pubkey"
+          },
+          {
+            "name": "election",
+            "type": "pubkey"
+          },
+          {
+            "name": "registration_time",
+            "type": "i64"
+          },
+          {
+            "name": "is_eligible",
+            "type": "bool"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "VoterStatus"
+              }
+            }
+          },
+          {
+            "name": "has_voted",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ElectionVoterStatusChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "election",
+            "type": "pubkey"
+          },
+          {
+            "name": "voter",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_status",
+            "type": {
+              "defined": {
+                "name": "VoterStatus"
+              }
+            }
+          },
+          {
+            "name": "new_status",
+            "type": {
+              "defined": {
+                "name": "VoterStatus"
+              }
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Student"
+          },
+          {
+            "name": "Staff"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserVerification",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "id_number",
+            "type": "string"
+          },
+          {
+            "name": "user_type",
+            "type": {
+              "defined": {
+                "name": "UserType"
+              }
+            }
+          },
+          {
+            "name": "is_verified",
+            "type": "bool"
+          },
+          {
+            "name": "verification_time",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserVerified",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "id_number",
+            "type": "string"
+          },
+          {
+            "name": "user_type",
+            "type": {
+              "defined": {
+                "name": "UserType"
+              }
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VoterRegistered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "election",
+            "type": "pubkey"
+          },
+          {
+            "name": "voter",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VoterStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Suspended"
+          },
+          {
+            "name": "Revoked"
+          },
+          {
+            "name": "OnHold"
+          }
+        ]
+      }
+    }
+  ]
+}
