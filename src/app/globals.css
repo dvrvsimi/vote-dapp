@@ -17,3 +17,10 @@ body {
 .wallet-adapter-button {
     font-family: inherit !important;
 }
+.check-icon {
+    opacity: 0;
+  }
+  
+  input:checked ~ .check-icon {
+    opacity: 1;
+  }

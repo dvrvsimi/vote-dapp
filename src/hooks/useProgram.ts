@@ -3,8 +3,8 @@ import { useEffect, useMemo } from "react";
 import { Program, AnchorProvider } from "@coral-xyz/anchor";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { Vote } from "../../../../target/types/vote";
-import VoteIDL from "../../../../target/idl/vote.json";
+import { Vote } from "../../anchor/target/types/vote";
+import VoteIDL from "../../anchor/target/idl/vote.json";
 
 export const PROGRAM_ID = new PublicKey(VoteIDL.address);
 export const useProgram = () => {

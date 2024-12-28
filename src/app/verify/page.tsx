@@ -1,4 +1,3 @@
-// src/app/verify/page.tsx
 "use client";
 import React, { useState, useCallback, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -75,11 +74,7 @@ const VerificationForm = () => {
         if (err.toString().includes("already in use")) {
           setError("This wallet is already verified!");
         } else if (
-          err
-            .toString()
-            .includes(
-              " Attempt to debit an account but found no record of a prior credit"
-            )
+          err.toString().includes("Attempt to debit an account but found no record of a prior credit")
         ) {
           setError(
             "This wallet is new, has a zero balance, and needs funding to carry out transactions."
@@ -97,7 +92,7 @@ const VerificationForm = () => {
   if (!publicKey) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Alert>
+        <Alert className="bg-slate-800 border border-purple-500 text-white shadow-lg">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Please connect your wallet to continue with verification.
@@ -110,59 +105,69 @@ const VerificationForm = () => {
   if (isVerified) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Alert className="bg-green-50">
-          <ShieldCheck className="h-4 w-4 text-green-500" />
+        <Alert className="bg-green-800 border border-green-400 text-white shadow-lg">
+          <ShieldCheck className="h-4 w-4 text-green-300" />
           <AlertDescription>
-            This wallet is already verified. You can proceed to register for
-            elections.
+            This wallet is already verified. You can proceed to register for elections.
           </AlertDescription>
         </Alert>
       </div>
     );
   }
+
   return (
     <div className="max-w-2xl mx-auto">
       <button
         onClick={() => router.back()}
-        className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
+        className="flex items-center text-white hover:text-purple-300 mb-6 transition-colors"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back
       </button>
 
-      <Card className="mb-6">
+      <Card className="mb-6 bg-slate-800 border border-purple-500/50 shadow-xl">
         <CardHeader>
           <div className="flex items-center space-x-4">
-            <ShieldCheck className="h-6 w-6 text-blue-500" />
-            <CardTitle>User Verification</CardTitle>
+            <ShieldCheck className="h-6 w-6 text-purple-400" />
+            <CardTitle className="text-2xl font-bold text-white">
+              User Verification
+            </CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleVerification} className="space-y-6">
             {/* Wallet Information */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-medium mb-2">Connected Wallet</h3>
-              <code className="text-sm bg-white px-2 py-1 rounded break-all">
+            <div className="bg-slate-900 border border-purple-500/30 p-4 rounded-lg">
+              <h3 className="font-medium mb-2 text-white">Connected Wallet</h3>
+              <code className="text-sm bg-slate-950 px-3 py-2 rounded-lg block text-purple-300 break-all font-mono">
                 {publicKey.toString()}
               </code>
             </div>
 
             {/* Agreements */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               {AGREEMENTS.map(({ id, title, content }) => (
-                <div key={id} className="flex items-start space-x-3">
-                  <input
-                    type="checkbox"
-                    id={id}
-                    checked={agreements[id] || false}
-                    onChange={() => handleAgreementChange(id)}
-                    className="mt-1"
-                  />
-                  <div>
-                    <label htmlFor={id} className="text-sm font-medium block">
-                      {title}
-                    </label>
-                    <p className="text-sm text-gray-600 mt-1">{content}</p>
+                <div key={id} className="bg-white rounded-lg p-4 space-y-3">
+                  <div className="flex items-start space-x-3 group">
+                    <div className="relative mt-1">
+                      <input
+                        type="checkbox"
+                        id={id}
+                        checked={agreements[id] || false}
+                        onChange={() => handleAgreementChange(id)}
+                        className="appearance-none w-4 h-4 border-2 border-purple-400 rounded 
+                                 checked:bg-purple-500 checked:border-purple-500 
+                                 transition-colors cursor-pointer"
+                      />
+                      <CheckIcon className="h-3 w-3 text-white absolute left-0.5 top-0.5 pointer-events-none 
+                                         opacity-0 check-icon transition-opacity" />
+                    </div>
+                    <div className="flex-1">
+                      <label htmlFor={id} className="text-lg font-semibold block text-purple-600 cursor-pointer hover:text-purple-700 transition-colors">
+                        {title}
+                      </label>
+                      <p className="text-sm text-black mt-2 leading-relaxed">{content}</p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -170,9 +175,9 @@ const VerificationForm = () => {
 
             {/* Error Display */}
             {error && (
-              <Alert className="bg-red-50">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
+              <Alert className="bg-red-900 border border-red-400 shadow-lg">
+                <AlertCircle className="h-4 w-4 text-red-300" />
+                <AlertDescription className="text-white">{error}</AlertDescription>
               </Alert>
             )}
 
@@ -180,15 +185,16 @@ const VerificationForm = () => {
             <button
               type="submit"
               disabled={!allAgreementsAccepted || isVerifying}
-              className="w-full py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
-               disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors
-               flex items-center justify-center"
+              className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-purple-400 text-white rounded-lg
+                         hover:from-purple-500 hover:to-purple-300 disabled:from-gray-700 disabled:to-gray-600
+                         disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]
+                         disabled:hover:scale-100 font-medium shadow-lg disabled:text-gray-300"
             >
               {isVerifying ? (
-                <>
+                <div className="flex items-center justify-center">
                   <LoadingSpinner size="sm" className="mr-2" />
-                  Verifying...
-                </>
+                  <span>Verifying...</span>
+                </div>
               ) : (
                 "Verify User"
               )}
@@ -200,10 +206,29 @@ const VerificationForm = () => {
   );
 };
 
+// Custom CheckIcon component for checkboxes
+const CheckIcon = ({ className = "" }) => (
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={3}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M5 13l4 4L19 7"
+    />
+  </svg>
+);
+
 export default function VerifyPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <VerificationForm />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="container mx-auto px-4 py-8">
+        <VerificationForm />
+      </div>
     </div>
   );
 }

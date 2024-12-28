@@ -1,10 +1,9 @@
-// src/components/layout/Header.tsx
-
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Vote, Menu, Settings, Bell } from "lucide-react";
+import { Menu, Settings, Bell } from "lucide-react";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { ClusterUiSelect } from "@/components/cluster/cluster-ui";
 import { useUserVerification } from "@/hooks/useUserVerification";
@@ -48,9 +47,16 @@ const Header = () => {
           {/* Logo and brand */}
           <div className="flex items-center">
             <div onClick={() => router.push("/")} className="cursor-pointer">
-              <Vote className="h-8 w-8 text-blue-600" />
+              <Image 
+                src="/logo.png"
+                alt="elect.io"
+                width={40}
+                height={40}
+                className="w-auto h-8"
+                priority
+              />
             </div>
-            <div className="ml-4 space-x-8 hidden md:flex">
+            <div className="ml-8 space-x-8 hidden md:flex">
               {navigation.map((item) => (
                 <button
                   key={item.name}
@@ -58,7 +64,7 @@ const Header = () => {
                   className={`text-base font-medium ${
                     item.disabled
                       ? "text-green-600 cursor-default"
-                      : "text-gray-700 hover:text-blue-600 transition-colors"
+                      : "text-gray-700 hover:text-purple-600 transition-colors"
                   }`}
                 >
                   {item.name}
@@ -87,7 +93,7 @@ const Header = () => {
 
             {/* Wallet connection and Cluster Selection */}
             <div className="hidden md:flex items-center space-x-4">
-              <WalletMultiButton className="!bg-blue-600 hover:!bg-blue-700 text-sm" />
+              <WalletMultiButton className="!bg-purple-600 hover:!bg-purple-700 text-sm" />
               <ClusterUiSelect />
             </div>
           </div>
@@ -108,14 +114,14 @@ const Header = () => {
                     className={`text-base font-medium ${
                       item.disabled
                         ? "text-green-600 cursor-default"
-                        : "text-gray-700 hover:text-blue-600 transition-colors"
+                        : "text-gray-700 hover:text-purple-600 transition-colors"
                     }`}
                   >
                     {item.name}
                   </button>
                 ))}
                 <div className="pt-4 space-y-4">
-                  <WalletMultiButton className="!bg-blue-600 hover:!bg-blue-700 text-sm w-full" />
+                  <WalletMultiButton className="!bg-purple-600 hover:!bg-purple-700 text-sm w-full" />
                   <ClusterUiSelect />
                 </div>
               </div>
