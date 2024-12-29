@@ -50,8 +50,8 @@ const Header = () => {
               <Image 
                 src="/logo.png"
                 alt="elect.io"
-                width={40}
-                height={40}
+                width={80}
+                height={50}
                 className="w-auto h-8"
                 priority
               />
