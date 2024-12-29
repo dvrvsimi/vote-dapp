@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/ui/loadingSpinner";
 import { useEffect, useState } from "react";
 import { useUserVerification } from "@/hooks/useUserVerification";
+import { LiveElections } from '@/components/election/LiveElections';
+
 
 export default function HomePage() {
   const router = useRouter();
@@ -121,7 +123,6 @@ export default function HomePage() {
                 </Card>
               </div>
             )}
-
             <Card className="bg-white/90 border border-purple-500/20 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-2xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
@@ -132,9 +133,7 @@ export default function HomePage() {
                 <p className="text-black">
                   Explore and participate in ongoing elections.
                 </p>
-                <div className="mt-4 p-8 border border-dashed border-purple-500/20 rounded-lg text-center text-purple-500">
-                  No active elections at the moment
-                </div>
+                <LiveElections />
               </CardContent>
             </Card>
           </div>

@@ -134,46 +134,17 @@ function formatTransaction(tx, type, instruction) {
         signature: tx.signature,
         blockTime: tx.blockTime,
         timestamp: new Date(tx.blockTime * 1000).toISOString(),
-        slot: tx.slot
+        election: instruction.accounts[1], // election account is typically the second account
+        authority: instruction.accounts[0], // authority is typically the first account
     };
 
-    switch (type) {
-        case 'new_election':
-            return {
-                ...baseFormat,
-                authority: instruction.accounts[0],
-                election: instruction.accounts[1]
-            };
-        case 'election_ended':
-            return {
-                ...baseFormat,
-                authority: instruction.accounts[0],
-                election: instruction.accounts[1]
-            };
-        case 'vote_cast':
-            return {
-                ...baseFormat,
-                voter: instruction.accounts[0],
-                election: instruction.accounts[1],
-                ballot: instruction.accounts[4]
-            };
-        case 'voter_registered':
-            return {
-                ...baseFormat,
-                voter: instruction.accounts[0],
-                election: instruction.accounts[1],
-                electionVoter: instruction.accounts[3]
-            };
-        case 'user_verified':
-            return {
-                ...baseFormat,
-                user: instruction.accounts[0],
-                userVerification: instruction.accounts[1]
-            };
-        default:
-            return baseFormat;
-    }
+    // Remove any undefined/null values
+    return Object.fromEntries(
+        Object.entries(baseFormat).filter(([_, v]) => v != null)
+    );
 }
+
+// Then in your webhook handler, when broadcasting:
 
 app.post('/webhook', (req, res) => {
     if (!req.body?.matchedTransactions) {
@@ -230,7 +201,7 @@ app.get('/health', (req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
     console.log(`\n🚀 Server running on port ${PORT}`);
     console.log('\n📋 Filter Configuration:', JSON.stringify(FILTER_CONFIG, null, 2));
@@ -248,3 +219,5 @@ process.on('uncaughtException', (error) => {
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
+
+// my ngrok link: https://dacd-197-211-59-62.ngrok-free.app
