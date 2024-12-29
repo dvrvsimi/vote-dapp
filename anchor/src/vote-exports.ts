@@ -8,7 +8,7 @@ import type { Vote } from '../target/types/vote'
 export { Vote, VoteIDL }
 
 // The programId is imported from the program IDL.
-export const BASIC_PROGRAM_ID = new PublicKey(VoteIDL.address)
+export const VOTE_PROGRAM_ID = new PublicKey(VoteIDL.address)
 
 // This is a helper function to get the Basic Anchor program.
 export function getBasicProgram(provider: AnchorProvider) {

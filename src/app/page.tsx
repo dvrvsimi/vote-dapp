@@ -73,17 +73,17 @@ export default function HomePage() {
 
           <div className="grid gap-8">
             {isVerified ? (
-              <Card className="bg-purple-900/20 border border-purple-500/20 backdrop-blur-sm">
+              <Card className="bg-white/90 border border-purple-500/20 backdrop-blur-sm">
                 <CardContent className="py-8">
                   <div className="flex items-center space-x-4">
                     <div className="p-3 bg-green-400/10 rounded-xl border border-green-400/20">
                       <CheckCircle className="h-8 w-8 text-green-400" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-semibold text-white mb-1">
+                      <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
                         Verification Complete
                       </h2>
-                      <p className="text-purple-200/70">
+                      <p className="text-black">
                         Your wallet is verified for participation in the voting system.
                       </p>
                     </div>

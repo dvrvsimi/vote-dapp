@@ -38,6 +38,7 @@ const VerificationForm = () => {
     fetchVerification,
   } = useUserVerification();
   const [isVerified, setIsVerified] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [agreements, setAgreements] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +52,7 @@ const VerificationForm = () => {
   const allAgreementsAccepted = AGREEMENTS.every(({ id }) => agreements[id]);
 
   useEffect(() => {
+    setIsInitialized(true);
     const checkVerification = async () => {
       if (!publicKey) return;
       const verification = await fetchVerification(publicKey);

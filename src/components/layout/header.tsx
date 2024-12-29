@@ -34,6 +34,12 @@ const Header = () => {
   const navigation = [
     { name: "Home", href: "/" },
     {
+      name: "Create Election",
+      href: "/election/create",
+      disabled: !isVerified,
+      hidden: !isVerified,
+    },
+    {
       name: isVerified ? "Verified" : "Verify",
       href: "/verify",
       disabled: isVerified,
@@ -43,16 +49,16 @@ const Header = () => {
   return (
     <header className="bg-white shadow-sm">
       <nav className="mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
-        <div className="w-full py-6 flex items-center justify-between">
+        <div className="w-full py-3 flex items-center justify-between">
           {/* Logo and brand */}
           <div className="flex items-center">
             <div onClick={() => router.push("/")} className="cursor-pointer">
               <Image 
                 src="/logo.png"
                 alt="elect.io"
-                width={80}
-                height={50}
-                className="w-auto h-8"
+                width={90}
+                height={90}
+                className="w-auto h-12"
                 priority
               />
             </div>

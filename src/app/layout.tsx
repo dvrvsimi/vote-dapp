@@ -10,7 +10,7 @@ export const metadata = {
   description: "Secure, transparent, and decentralized voting platform on Solana",
   icons: {
     icon: [
-      { url: '/favicon.png', size: '48x48' },
+      { url: '/favicon.png'},
     ],
   },
 };

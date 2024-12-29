@@ -12,7 +12,7 @@ export const useProgram = () => {
     useWallet();
 
   const connection = useMemo(
-    () => new Connection("http://localhost:8899", "confirmed"),
+    () => new Connection("https://api.devnet.solana.com", "confirmed"),
     []
   );
 

@@ -1,4 +1,3 @@
-// src/components/election/create/CreateElectionForm.tsx
 import React from "react";
 import { useCreateElection } from "@/hooks/useCreateElection";
 import ElectionSettings from "./ElectionSettings";
@@ -37,11 +36,11 @@ export default function CreateElectionForm() {
               <div
                 className={`
                   w-10 h-10 rounded-full flex items-center justify-center font-medium
-                  transition-colors duration-200
+                  transition-all duration-300 border
                   ${
                     step >= s.number
-                      ? "bg-primary text-white"
-                      : "bg-gray-100 text-gray-400"
+                      ? "bg-gradient-to-r from-purple-600 to-purple-400 text-white border-purple-400"
+                      : "bg-white/80 text-purple-400 border-purple-200"
                   }
                 `}
               >
@@ -49,17 +48,19 @@ export default function CreateElectionForm() {
               </div>
               <span
                 className={`
-                ml-3 text-sm font-medium hidden sm:block
-                ${step >= s.number ? "text-primary" : "text-gray-400"}
+                ml-3 text-sm font-medium hidden sm:block transition-colors duration-300
+                ${step >= s.number 
+                  ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400" 
+                  : "text-purple-300"}
               `}
               >
                 {s.title}
               </span>
             </div>
             {idx < steps.length - 1 && (
-              <div className="flex-1 h-1 mx-4 bg-gray-100">
+              <div className="flex-1 h-1 mx-4 bg-purple-100/20 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-primary transition-all duration-200"
+                  className="h-full bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-500"
                   style={{ width: step > s.number ? "100%" : "0%" }}
                 />
               </div>
@@ -121,11 +122,11 @@ export default function CreateElectionForm() {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto p-6">
+    <Card className="w-full max-w-4xl mx-auto p-6 bg-white/90 border border-purple-500/20 backdrop-blur-sm">
       {renderProgress()}
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg">
+        <div className="mb-6 p-4 bg-red-900/50 border border-red-500/50 text-red-200 rounded-lg backdrop-blur-sm">
           {error}
         </div>
       )}

@@ -1,4 +1,3 @@
-// src/components/election/create/VotingConfig.tsx
 import React, { useState, useEffect } from "react";
 import { ElectionFormData } from "@/types/election";
 import { Input } from "@/components/ui/input";
@@ -86,12 +85,14 @@ export default function VotingConfig({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="p-4 bg-red-50 text-red-600 rounded-lg">{error}</div>
+        <div className="p-3 text-sm text-red-200 bg-red-900/50 border border-red-500/50 rounded-lg backdrop-blur-sm">
+          {error}
+        </div>
       )}
 
       <div className="space-y-4">
         <div>
-          <Label>Number of Winners</Label>
+          <Label className="text-purple-900">Number of Winners</Label>
           <Input
             type="number"
             required
@@ -99,36 +100,37 @@ export default function VotingConfig({
             max={maxWinners}
             value={localData.numWinners}
             onChange={(e) => handleWinnersChange(Number(e.target.value))}
+            className="border-purple-500/20 focus:border-purple-500 bg-white text-purple-900"
           />
-          <p className="text-xs text-gray-500 mt-1">
-            Must be between 1 and {maxWinners} winner
+          <p className="text-xs text-purple-600/70 mt-1">
+            Must be between 1 and {maxWinners} winner(s)
             {maxWinners !== 1 ? "s" : ""}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label>Plus Votes per Voter (Auto-calculated)</Label>
+            <Label className="text-purple-900">Plus Votes per Voter (Auto-calculated)</Label>
             <Input
               type="number"
               value={localData.numPlusVotes}
               disabled
-              className="bg-gray-100"
+              className="bg-purple-50/50 border-purple-500/20 text-purple-900/60"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-purple-600/70 mt-1">
               Based on D21 formula: Maximum {maxPlus} votes
             </p>
           </div>
 
           <div>
-            <Label>Minus Votes per Voter (Auto-calculated)</Label>
+            <Label className="text-purple-900">Minus Votes per Voter (Auto-calculated)</Label>
             <Input
               type="number"
               value={localData.numMinusVotes}
               disabled
-              className="bg-gray-100"
+              className="bg-purple-50/50 border-purple-500/20 text-purple-900/60"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-purple-600/70 mt-1">
               Based on D21 formula: Maximum 1/3 of plus votes (≤{" "}
               {Math.floor(localData.numPlusVotes / 3)})
             </p>
@@ -136,17 +138,21 @@ export default function VotingConfig({
         </div>
       </div>
 
-      <div className="flex justify-between pt-6 border-t">
+      <div className="flex justify-between pt-6 border-t border-purple-500/20">
         <button
           type="button"
           onClick={onBack}
-          className="px-4 py-2 text-gray-600 hover:text-gray-800"
+          className="px-4 py-2 text-purple-600 hover:text-purple-800 transition-colors"
         >
           Back
         </button>
         <button
           type="submit"
-          className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+          className="px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-400 text-white rounded-lg
+                   hover:from-purple-500 hover:to-purple-300 disabled:from-gray-700 disabled:to-gray-600
+                   disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300
+                   transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20
+                   disabled:hover:scale-100 disabled:hover:shadow-none"
         >
           Continue
         </button>
