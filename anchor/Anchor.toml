@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-vote = "6z68wfurCMYkZG51s1Et9BJEd9nJGUusjHXNt4dGbNNF"
+vote = "CbwSkuSw474aJCRBaJE3wvpwnkRRkCQbZc1NMrmrTXMS"
 
 [registry]
 url = "https://api.apr.dev"

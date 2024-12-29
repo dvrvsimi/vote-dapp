@@ -653,28 +653,93 @@ export type Vote = {
   "errors": [
     {
       "code": 6000,
-      "name": "voterNotRegistered",
-      "msg": "Voter is not registered"
+      "name": "electionNotActive",
+      "msg": "Election is not active"
     },
     {
       "code": 6001,
-      "name": "voterAlreadyRegistered",
-      "msg": "Voter is already registered"
+      "name": "alreadyVoted",
+      "msg": "Voter has already cast their ballot"
     },
     {
       "code": 6002,
-      "name": "voterNotEligible",
-      "msg": "Voter is not eligible"
+      "name": "tooManyPlusVotes",
+      "msg": "Too many plus votes"
     },
     {
       "code": 6003,
-      "name": "voterSuspended",
-      "msg": "Voter is suspended"
+      "name": "tooManyMinusVotes",
+      "msg": "Too many minus votes"
     },
     {
       "code": 6004,
-      "name": "invalidStatusTransition",
-      "msg": "Invalid voter status transition"
+      "name": "insufficientPlusVotes",
+      "msg": "Must cast at least 2 plus votes to use minus votes"
+    },
+    {
+      "code": 6005,
+      "name": "invalidCandidate",
+      "msg": "Invalid candidate index"
+    },
+    {
+      "code": 6006,
+      "name": "invalidCandidateCount",
+      "msg": "Invalid number of candidates (1-50)"
+    },
+    {
+      "code": 6007,
+      "name": "invalidWinnerCount",
+      "msg": "Invalid number of winners"
+    },
+    {
+      "code": 6008,
+      "name": "invalidPlusVoteCount",
+      "msg": "Invalid number of plus votes"
+    },
+    {
+      "code": 6009,
+      "name": "invalidMinusVoteCount",
+      "msg": "Number of minus votes must be less than plus votes"
+    },
+    {
+      "code": 6010,
+      "name": "invalidNameLength",
+      "msg": "Election name must be between 1 and 50 characters"
+    },
+    {
+      "code": 6011,
+      "name": "duplicateCandidates",
+      "msg": "Duplicate candidates not allowed"
+    },
+    {
+      "code": 6012,
+      "name": "duplicateVotes",
+      "msg": "Duplicate votes not allowed"
+    },
+    {
+      "code": 6013,
+      "name": "overlappingVotes",
+      "msg": "Cannot vote for same candidate with plus and minus"
+    },
+    {
+      "code": 6014,
+      "name": "invalidElectionId",
+      "msg": "Election ID must be between 1 and 32 characters"
+    },
+    {
+      "code": 6015,
+      "name": "unauthorized",
+      "msg": "You are not authorized to modify this Election details"
+    },
+    {
+      "code": 6016,
+      "name": "userTypeNotAllowed",
+      "msg": "User type not allowed for this election"
+    },
+    {
+      "code": 6017,
+      "name": "invalidVoterTypes",
+      "msg": "Election must allow at least one voter type"
     }
   ],
   "types": [

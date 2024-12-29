@@ -11,7 +11,7 @@ pub use error::*;
 pub use state::*;
 pub use constant::*;
 
-declare_id!("Hpxy39igcTdXQ3s9EECuCtQH4VCdje6hMWDH1ZVdMA7h");
+declare_id!("CbwSkuSw474aJCRBaJE3wvpwnkRRkCQbZc1NMrmrTXMS");
 
 #[program]
 pub mod vote {
