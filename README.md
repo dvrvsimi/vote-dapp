@@ -1,94 +1,141 @@
-# template-next-tailwind-basic
+# elect.io: the next-gen decentralized voting platform 🗳️
 
-## Getting Started
+
+elect.io revolutionizes digital voting by combining the security of Solana blockchain with an intuitive user experience. Built for organizations, institutions, and communities that value transparency and trust.
+
+![home page](/public/home.png)
+
+
+## ✨ Features
+
+- **Real-Time Results** - Watch votes flow in as they happen
+- **Bank-Grade Security** - Powered by Solana blockchain and QuickNode infrastructure
+- **Universal Access** - Vote from any device, anywhere in the world
+- **Tamper-Proof** - Every vote is permanently recorded on the blockchain
+- **Role-Based Access** - Flexible voter verification system
+- **Instant Analytics** - Track participation and results in real-time
+
+## 🚀 Quick Start
+See [Technical Setup](#prerequisites) for more details
+
+### For Voters
+
+1. Connect your Solana wallet
+2. Complete one-time verification
+3. Start voting in available elections!
+
+[IMAGE: Screenshot of the voter onboarding flow]
+
+### For Election Organizers
+
+1. Create your election at  `/election/create`
+2. Add candidate and candidate details
+3. Set up voter verification requirements
+4. Launch your first election
+
+![features](/public/feature.jpg)
+
+## 🛠️ Technical Setup
 
 ### Prerequisites
 
-- Node v18.18.0 or higher
+- Node.js v16+
+- Solana CLI tools
+- QuickNode account
+- ngrok (for local development)
 
-- Rust v1.77.2 or higher
-- Anchor CLI 0.30.1 or higher
-- Solana CLI 1.18.17 or higher
+### Local Development
 
-### Installation
+```bash
+# Clone the repository
+git clone https://github.com/dvrvsimi/vote-dapp
+cd vote-dapp
 
-#### Clone the repo
+# Install dependencies
+npm install
 
-```shell
-git clone <repo-url>
-cd <repo-name>
+# Start the development server
+npm run dev
 ```
 
-#### Install Dependencies
 
-```shell
-pnpm install
-```
 
-#### Start the web app
 
-```
-pnpm dev
-```
+## WebSocket Streams
 
-## Apps
+![vote streams](/public/vote-stream.jpg)
 
-### anchor
 
-This is a Solana program written in Rust using the Anchor framework.
+Below are the list of available streamable channels
+- `elections`: Track election lifecycle events
+- `votes`: Monitor incoming votes
+- `voters`: Follow voter registration
+- `users`: Track user verification events
 
-#### Commands
+## 📊 Dashboard Features
 
-You can use any normal anchor commands. Either move to the `anchor` directory and run the `anchor` command or prefix the command with `pnpm`, eg: `pnpm anchor`.
+![quicknode dashboard](/public/quicknode-streams.jpg)
 
-#### Sync the program id:
+- Real-time vote counting
+- Voter turnout analytics
+- Geographic distribution
+- Time-based participation trends
 
-Running this command will create a new keypair in the `anchor/target/deploy` directory and save the address to the Anchor config file and update the `declare_id!` macro in the `./src/lib.rs` file of the program.
+## 🔒 Security Features
 
-You will manually need to update the constant in `anchor/lib/basic-exports.ts` to match the new program id.
+- Solana blockchain integration
+- QuickNode infrastructure
+- Role-based access control
+- Multi-factor authentication
+- Real-time rig detection
 
-```shell
-pnpm anchor keys sync
-```
+## 🌟 Use Cases
 
-#### Build the program:
+- **Corporate Governance**
+  - Shareholder voting
+  - Board elections
+  
+- **Academic Institutions**
+  - Student government
+  - Faculty senate
+  
+- **Organizations**
+  - Member voting
+  - Leadership elections
 
-```shell
-pnpm anchor-build
-```
 
-#### Start the test validator with the program deployed:
+## 💡 Contributing
 
-```shell
-pnpm anchor-localnet
-```
+contributions and suggestions are very welcome.
 
-#### Run the tests
 
-```shell
-pnpm anchor-test
-```
+## 🚀 Deploy Your Own
 
-#### Deploy to Devnet
+### QuickNode Setup
 
-```shell
-pnpm anchor deploy --provider.cluster devnet
-```
+1. Create your QuickNode account
+2. Configure Solana endpoint to devnet
+3. Set up Streams with our template (see webhook folder for both `filter.js` and `server.js`)
 
-### web
 
-This is a React app that uses the Anchor generated client to interact with the Solana program.
+### Program Configuration
 
-#### Commands
+Monitor these Solana program events:
+- Election initialization
+- Voter registration
+- Vote casting
+- Election completion
 
-Start the web app
+## 📄 License
 
-```shell
-pnpm dev
-```
+Elect.io is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-Build the web app
+---
 
-```shell
-pnpm build
-```
+<div align="center">
+  
+![LOGO IMAGE](./public/logo.png)
+
+Built with ❤️ by dvrvsimi
+
+</div>
