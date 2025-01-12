@@ -136,6 +136,6 @@ Elect.io is licensed under the MIT License. See [LICENSE](LICENSE) for details.
   
 ![LOGO IMAGE](./public/logo.png)
 
-Built with ❤️ by dvrvsimi
+Built with ❤️ by sarugami
 
 </div>
