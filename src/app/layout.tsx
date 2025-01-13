@@ -18,7 +18,8 @@ export const metadata = {
 };
 
 export default function RootLayout({
-  children,
+  children,// src/app/layout.tsx
+
 }: {
   children: React.ReactNode;
 }) {

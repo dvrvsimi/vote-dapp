@@ -1,7 +1,6 @@
 // src/app/page.tsx
 "use client";
 
-import { useWallet } from "@solana/wallet-adapter-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
@@ -15,33 +14,40 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useUserVerification } from "@/hooks/useUserVerification";
 import { LiveElections } from "@/components/election/LiveElections";
+import { useAppKitAccount } from '@reown/appkit/react';
+import { PublicKey } from '@solana/web3.js';
 
 export default function HomePage() {
   const router = useRouter();
-  const { publicKey } = useWallet();
+  const { address } = useAppKitAccount();
   const { fetchVerification } = useUserVerification();
   const [isChecking, setIsChecking] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     const checkStatus = async () => {
-      if (!publicKey) {
+      console.log("Checking status with address:", address);
+      if (!address) {
         setIsChecking(false);
+        setIsVerified(false);
         return;
       }
 
       try {
+        const publicKey = new PublicKey(address);
         const status = await fetchVerification(publicKey);
+        console.log("Verification status:", status);
         setIsVerified(status?.isVerified ?? false);
       } catch (error) {
         console.error("Error checking verification:", error);
+        setIsVerified(false);
       } finally {
         setIsChecking(false);
       }
     };
 
     checkStatus();
-  }, [publicKey, fetchVerification]);
+  }, [address, fetchVerification]);
 
   if (isChecking) {
     return (
@@ -58,7 +64,7 @@ export default function HomePage() {
     );
   }
 
-  if (!publicKey) {
+  if (!address) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-slate-900 to-black">
         <div className="container mx-auto px-4 py-16">

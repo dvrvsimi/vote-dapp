@@ -39,8 +39,8 @@ export const useUserVerification = () => {
 
       try {
         const userPublicKey = new PublicKey(address);
-        const verificationPda = getVerificationPDA(userPublicKey);
-        if (!verificationPda) throw new Error("Could not derive PDA");
+        const userVerificationPda = getVerificationPDA(userPublicKey);
+        if (!userVerificationPda) throw new Error("Could not derive PDA");
 
         // Create the enum in the format Anchor expects
         const userTypeEnum: UserTypeEnum = userType === "student" 
@@ -51,7 +51,7 @@ export const useUserVerification = () => {
           .verifyUser(idNumber, userTypeEnum)
           .accounts({
             user: userPublicKey,
-            UserVerification: verificationPda,
+            userVerification,
             systemProgram: SystemProgram.programId,
           })
           .rpc();

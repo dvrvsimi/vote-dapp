@@ -1,12 +1,13 @@
 "use client";
 import React, { useState, useCallback, useEffect } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, ArrowLeft, ShieldCheck } from "lucide-react";
 import LoadingSpinner from "@/components/ui/loadingSpinner";
 import { useUserVerification } from "@/hooks/useUserVerification";
+import { useAppKitAccount } from '@reown/appkit/react';
+import { PublicKey } from '@solana/web3.js';
 
 const AGREEMENTS = [
   {
@@ -31,7 +32,7 @@ const AGREEMENTS = [
 
 const VerificationForm = () => {
   const router = useRouter();
-  const { publicKey } = useWallet();
+  const { address } = useAppKitAccount();
   const {
     verifyUser,
     isLoading: isVerifying,
@@ -54,22 +55,28 @@ const VerificationForm = () => {
   useEffect(() => {
     setIsInitialized(true);
     const checkVerification = async () => {
-      if (!publicKey) return;
-      const verification = await fetchVerification(publicKey);
-      setIsVerified(verification?.isVerified ?? false);
+      if (!address) return;
+      try {
+        const publicKey = new PublicKey(address);
+        const verification = await fetchVerification(publicKey);
+        setIsVerified(verification?.isVerified ?? false);
+      } catch (error) {
+        console.error("Error checking verification:", error);
+        setIsVerified(false);
+      }
     };
 
     checkVerification();
-  }, [publicKey, fetchVerification]);
+  }, [address, fetchVerification]);
 
   const handleVerification = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!publicKey || !allAgreementsAccepted) return;
+      if (!address || !allAgreementsAccepted) return;
 
       setError(null);
       try {
-        await verifyUser("170404021", { student: {} });
+        await verifyUser("170404021", "student");
         router.push("/verify?isVerified=true");
       } catch (err: any) {
         console.error("Verification error:", err);
@@ -88,10 +95,10 @@ const VerificationForm = () => {
         }
       }
     },
-    [publicKey, allAgreementsAccepted, verifyUser, router]
+    [address, allAgreementsAccepted, verifyUser, router]
   );
 
-  if (!publicKey) {
+  if (!address) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Alert className="bg-slate-800 border border-purple-500 text-white shadow-lg">
@@ -142,7 +149,7 @@ const VerificationForm = () => {
             <div className="bg-slate-900 border border-purple-500/30 p-4 rounded-lg">
               <h3 className="font-medium mb-2 text-white">Connected Wallet</h3>
               <code className="text-sm bg-slate-950 px-3 py-2 rounded-lg block text-purple-300 break-all font-mono">
-                {publicKey.toString()}
+                {address}
               </code>
             </div>
 
