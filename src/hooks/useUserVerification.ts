@@ -1,13 +1,17 @@
 // hooks/useUserVerification.ts
 import { useCallback, useState } from "react";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
-import { UserType, UserVerification } from "../types/vote";
 import { useProgram } from "./useProgram";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useAppKitAccount } from '@reown/appkit/react';
+import { UserType, UserVerification } from "../types/vote";
+import { BN } from "@coral-xyz/anchor";
+
+// Helper type for program's enum representation
+type UserTypeEnum = { student: Record<string, never> } | { staff: Record<string, never> };
 
 export const useUserVerification = () => {
   const { program } = useProgram();
-  const { publicKey } = useWallet();
+  const { address } = useAppKitAccount();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -25,8 +29,8 @@ export const useUserVerification = () => {
   );
 
   const verifyUser = useCallback(
-    async (idNumber: string, userType: UserType) => {
-      if (!program || !publicKey) {
+    async (idNumber: string, userType: "student" | "staff") => {
+      if (!program || !address) {
         throw new Error("Program or wallet not connected");
       }
 
@@ -34,14 +38,20 @@ export const useUserVerification = () => {
       setError(null);
 
       try {
-        const userVerificationPDA = getVerificationPDA(publicKey);
-        if (!userVerificationPDA) throw new Error("Could not derive PDA");
+        const userPublicKey = new PublicKey(address);
+        const verificationPda = getVerificationPDA(userPublicKey);
+        if (!verificationPda) throw new Error("Could not derive PDA");
+
+        // Create the enum in the format Anchor expects
+        const userTypeEnum: UserTypeEnum = userType === "student" 
+          ? { student: {} }
+          : { staff: {} };
 
         const tx = await program.methods
-          .verifyUser(idNumber, userType)
+          .verifyUser(idNumber, userTypeEnum)
           .accounts({
-            user: publicKey,
-            userVerification: userVerificationPDA,
+            user: userPublicKey,
+            UserVerification: verificationPda,
             systemProgram: SystemProgram.programId,
           })
           .rpc();
@@ -55,7 +65,7 @@ export const useUserVerification = () => {
         setIsLoading(false);
       }
     },
-    [program, publicKey, getVerificationPDA]
+    [program, address, getVerificationPDA]
   );
 
   const fetchVerification = useCallback(
@@ -67,7 +77,16 @@ export const useUserVerification = () => {
         if (!pda) return null;
 
         const verification = await program.account.userVerification.fetch(pda);
-        return verification as UserVerification;
+        
+        // Convert program account format to our interface format
+        return {
+          user: verification.user,
+          idNumber: verification.idNumber,
+          userType: verification.userType as UserType,
+          isVerified: verification.isVerified,
+          verificationTime: verification.verificationTime.toNumber(), // Convert BN to number
+          bump: verification.bump,
+        };
       } catch (err) {
         console.error("Error fetching verification:", err);
         return null;

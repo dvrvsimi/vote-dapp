@@ -5,7 +5,7 @@ import { solana, solanaDevnet } from '@reown/appkit/networks'
 
 export const appkit = createAppKit({
   adapters: [new SolanaAdapter()], 
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID!,
   networks: [solana, solanaDevnet],
   metadata: {
     name: "elect.io",

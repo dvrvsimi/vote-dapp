@@ -64,7 +64,7 @@ export function ClusterUiSelect() {
   const { clusters, setCluster, cluster } = useCluster();
   return (
     <div className="dropdown dropdown-end">
-      <label tabIndex={0} className="btn btn-primary rounded-btn">
+      <label tabIndex={0} className="btn btn-primary rounded-btn text-white">
         {cluster.name}
       </label>
       <ul
@@ -135,7 +135,7 @@ export function ClusterUiModal({
         onChange={(e) => setEndpoint(e.target.value)}
       />
       <select
-        className="select select-bordered w-full"
+        className="select select-bordered w-full text-white"
         value={network}
         onChange={(e) => setNetwork(e.target.value as ClusterNetwork)}
       >
