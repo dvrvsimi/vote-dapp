@@ -1,83 +1,72 @@
-// src/components/wallet/wallet-connection.tsx
 'use client';
 
 import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react';
 import { Button } from "@/components/ui/button";
 
 export function WalletConnection() {
-  try {
-    const { open } = useAppKit();
-    const { address, isConnected, status } = useAppKitAccount();
-    const { disconnect } = useDisconnect();
+  const { open } = useAppKit();
+  const { address, isConnected, status } = useAppKitAccount();
+  const { disconnect } = useDisconnect();
 
-    // Handle connecting wallet
-    const handleConnect = async () => {
-      try {
-        await open();
-      } catch (error) {
-        console.error('Failed to open wallet connection modal:', error);
-      }
-    };
-
-    // Handle disconnecting wallet
-    const handleDisconnect = async () => {
-      try {
-        await disconnect();
-      } catch (error) {
-        console.error('Failed to disconnect wallet:', error);
-      }
-    };
-
-    // Show loading state while connecting
-    if (status === 'connecting' || status === 'reconnecting') {
-      return (
-        <Button 
-          disabled
-          className="!bg-purple-600 hover:!bg-purple-700 text-sm"
-        >
-          Connecting...
-        </Button>
-      );
+  // Handle connecting wallet
+  const handleConnect = async () => {
+    try {
+      await open();
+    } catch (error) {
+      console.error('Failed to open wallet connection modal:', error);
     }
+  };
 
-    // If connected, show address and disconnect button
-    if (isConnected && address) {
-      return (
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">
-            {address.slice(0, 4)}...{address.slice(-4)}
-          </span>
-          <Button
-            onClick={handleDisconnect}
-            className="!bg-purple-600 hover:!bg-purple-700 text-sm"
-            size="sm"
-          >
-            Disconnect
-          </Button>
-        </div>
-      );
+  // Handle disconnecting wallet
+  const handleDisconnect = async () => {
+    try {
+      await disconnect();
+    } catch (error) {
+      console.error('Failed to disconnect wallet:', error);
     }
+  };
 
-    // If not connected, show connect button
-    return (
-      <Button
-        onClick={handleConnect}
-        className="!bg-purple-600 hover:!bg-purple-700 text-sm text-white"
-      >
-        Connect Wallet
-      </Button>
-    );
-  } catch (error) {
-    // In development, show more detailed error
-    console.error('Wallet connection error:', error);
-    
+  if (status === 'connecting' || status === 'reconnecting') {
     return (
       <Button 
+        disabled
         className="!bg-purple-600 hover:!bg-purple-700 text-sm"
-        onClick={() => window.location.reload()}
       >
-        Connect Wallet
+        <span className="animate-pulse">Connecting...</span>
       </Button>
     );
   }
+
+  if (isConnected && address) {
+    return (
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          className="text-sm font-medium hover:bg-purple-100"
+          onClick={() => {
+            navigator.clipboard.writeText(address);
+            alert('Address copied to clipboard');
+          }}
+        >
+          {address.slice(0, 4)}...{address.slice(-4)}
+        </Button>
+        <Button
+          onClick={handleDisconnect}
+          className="!bg-purple-600 hover:!bg-purple-700 text-sm"
+          size="sm"
+        >
+          Disconnect
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <Button
+      onClick={handleConnect}
+      className="!bg-purple-600 hover:!bg-purple-700 text-sm text-white"
+    >
+      Connect Wallet
+    </Button>
+  );
 }

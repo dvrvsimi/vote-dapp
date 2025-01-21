@@ -4,7 +4,6 @@ import { PublicKey, SystemProgram } from "@solana/web3.js";
 import { useProgram } from "./useProgram";
 import { useAppKitAccount } from '@reown/appkit/react';
 import { UserType, UserVerification } from "../types/vote";
-import { BN } from "@coral-xyz/anchor";
 
 // Helper type for program's enum representation
 type UserTypeEnum = { student: Record<string, never> } | { staff: Record<string, never> };
@@ -51,7 +50,7 @@ export const useUserVerification = () => {
           .verifyUser(idNumber, userTypeEnum)
           .accounts({
             user: userPublicKey,
-            userVerification,
+            userVerification: userVerificationPda,
             systemProgram: SystemProgram.programId,
           })
           .rpc();
