@@ -1,8 +1,9 @@
-// hooks/useUserVerification.ts
 import { useCallback, useState } from "react";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
 import { useProgram } from "./useProgram";
-import { useAppKitAccount } from '@reown/appkit/react';
+import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
+import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
+import type { Provider } from '@reown/appkit-adapter-solana/react';
 import { UserType, UserVerification } from "../types/vote";
 
 // Helper type for program's enum representation
@@ -11,6 +12,8 @@ type UserTypeEnum = { student: Record<string, never> } | { staff: Record<string,
 export const useUserVerification = () => {
   const { program } = useProgram();
   const { address } = useAppKitAccount();
+  const { walletProvider } = useAppKitProvider<Provider>('solana');
+  const { connection } = useAppKitConnection();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -29,8 +32,8 @@ export const useUserVerification = () => {
 
   const verifyUser = useCallback(
     async (idNumber: string, userType: "student" | "staff") => {
-      if (!program || !address) {
-        throw new Error("Program or wallet not connected");
+      if (!program || !address || !walletProvider || !connection) {
+        throw new Error("Program, wallet, provider or connection not initialized");
       }
 
       setIsLoading(true);
@@ -46,6 +49,10 @@ export const useUserVerification = () => {
           ? { student: {} }
           : { staff: {} };
 
+        // Get the latest blockhash
+        const latestBlockhash = await connection.getLatestBlockhash();
+
+        // Get the transaction from program methods
         const tx = await program.methods
           .verifyUser(idNumber, userTypeEnum)
           .accounts({
@@ -53,10 +60,19 @@ export const useUserVerification = () => {
             userVerification: userVerificationPda,
             systemProgram: SystemProgram.programId,
           })
-          .rpc();
+          .transaction();
 
-        await program.provider.connection.confirmTransaction(tx);
-        return tx;
+        // Set the blockhash and fee payer
+        tx.recentBlockhash = latestBlockhash.blockhash;
+        tx.feePayer = userPublicKey;
+
+        // Use AppKit's walletProvider to send transaction
+        const signature = await walletProvider.sendTransaction(tx, program.provider.connection);
+        
+        // Wait for confirmation
+        await connection.confirmTransaction(signature);
+        
+        return { signature };
       } catch (err) {
         setError(err as Error);
         throw err;
@@ -64,7 +80,7 @@ export const useUserVerification = () => {
         setIsLoading(false);
       }
     },
-    [program, address, getVerificationPDA]
+    [program, address, walletProvider, connection, getVerificationPDA]
   );
 
   const fetchVerification = useCallback(
@@ -83,7 +99,7 @@ export const useUserVerification = () => {
           idNumber: verification.idNumber,
           userType: verification.userType as UserType,
           isVerified: verification.isVerified,
-          verificationTime: verification.verificationTime.toNumber(), // Convert BN to number
+          verificationTime: verification.verificationTime.toNumber(),
           bump: verification.bump,
         };
       } catch (err) {

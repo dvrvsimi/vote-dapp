@@ -18,8 +18,7 @@ export const metadata = {
 };
 
 export default function RootLayout({
-  children,// src/app/layout.tsx
-
+  children,
 }: {
   children: React.ReactNode;
 }) {
@@ -28,15 +27,15 @@ export default function RootLayout({
       <body className="bg-slate-50">
         <ReactQueryProvider>
           <ClusterProvider>
-            <SolanaProvider>
-              <AppKitWrapper>
+            <AppKitWrapper>
+              <SolanaProvider>
                 <Header />
                 <main className="min-h-screen">
                   {children}
                 </main>
                 <Footer />
-              </AppKitWrapper>
-            </SolanaProvider>
+              </SolanaProvider>
+            </AppKitWrapper>
           </ClusterProvider>
         </ReactQueryProvider>
       </body>

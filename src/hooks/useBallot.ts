@@ -1,13 +1,13 @@
-// hooks/useBallot.ts
+// useBallot.ts
 import { useCallback, useState } from "react";
-import { PublicKey, SystemProgram } from "@solana/web3.js";
+import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { useProgram } from "./useProgram";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useAppKitAccount } from '@reown/appkit/react';
 import { Ballot } from "../types/vote";
 
 export const useBallot = (electionPDA?: PublicKey) => {
   const { program } = useProgram();
-  const { publicKey } = useWallet();
+  const { address } = useAppKitAccount();
   const [isLoading, setIsLoading] = useState(false);
 
   const getBallotPDA = useCallback(
@@ -25,22 +25,23 @@ export const useBallot = (electionPDA?: PublicKey) => {
 
   const castVote = useCallback(
     async (plusVotes: number[], minusVotes: number[]) => {
-      if (!program || !publicKey || !electionPDA) {
+      if (!program || !address || !electionPDA) {
         throw new Error("Missing required parameters");
       }
 
       setIsLoading(true);
       try {
-        const ballotPDA = getBallotPDA(electionPDA, publicKey);
+        const voterPubkey = new PublicKey(address);
+        const ballotPDA = getBallotPDA(electionPDA, voterPubkey);
         const userVerificationPDA = PublicKey.findProgramAddressSync(
-          [Buffer.from("user_verification"), publicKey.toBuffer()],
+          [Buffer.from("user_verification"), voterPubkey.toBuffer()],
           program.programId
         )[0];
         const electionVoterPDA = PublicKey.findProgramAddressSync(
           [
             Buffer.from("election_voter"),
             electionPDA.toBuffer(),
-            publicKey.toBuffer(),
+            voterPubkey.toBuffer(),
           ],
           program.programId
         )[0];
@@ -50,7 +51,7 @@ export const useBallot = (electionPDA?: PublicKey) => {
         const tx = await program.methods
           .vote(Buffer.from(plusVotes), Buffer.from(minusVotes))
           .accounts({
-            voter: publicKey,
+            voter: voterPubkey,
             election: electionPDA,
             ballot: ballotPDA,
             electionVoter: electionVoterPDA,
@@ -59,13 +60,12 @@ export const useBallot = (electionPDA?: PublicKey) => {
           })
           .rpc();
 
-        await program.provider.connection.confirmTransaction(tx);
         return tx;
       } finally {
         setIsLoading(false);
       }
     },
-    [program, publicKey, electionPDA, getBallotPDA]
+    [program, address, electionPDA, getBallotPDA]
   );
 
   const fetchBallot = useCallback(
