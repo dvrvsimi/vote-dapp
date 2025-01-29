@@ -10,6 +10,9 @@ import VoteIDL from "../../anchor/target/idl/vote.json";
 
 export const PROGRAM_ID = new PublicKey(VoteIDL.address);
 
+// useProgram.ts
+// ... previous imports remain the same
+
 export const useProgram = () => {
   const { address } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider<Provider>('solana');
@@ -26,26 +29,20 @@ export const useProgram = () => {
       connection,
       {
         publicKey: userPublicKey,
-        // Implement sign transaction using AppKit's walletProvider
+        // Modify the signTransaction implementation
         signTransaction: async (tx: Transaction) => {
           try {
-            const signature = await walletProvider.sendTransaction(tx, connection);
-            await connection.confirmTransaction(signature);
-            return tx;
+            const signedTx = await walletProvider.signTransaction(tx);
+            return signedTx;
           } catch (error) {
             console.error('Transaction signing failed:', error);
             throw error;
           }
         },
-        // Implement sign all transactions using AppKit's walletProvider
+        // Modify the signAllTransactions implementation
         signAllTransactions: async (txs: Transaction[]) => {
           try {
-            const signedTxs = [];
-            for (const tx of txs) {
-              const signature = await walletProvider.sendTransaction(tx, connection);
-              await connection.confirmTransaction(signature);
-              signedTxs.push(tx);
-            }
+            const signedTxs = await walletProvider.signAllTransactions(txs);
             return signedTxs;
           } catch (error) {
             console.error('Batch transaction signing failed:', error);
@@ -57,17 +54,5 @@ export const useProgram = () => {
     );
   }, [connection, walletProvider, address]);
 
-  const program = useMemo(() => {
-    if (!provider) return null;
-    return new Program(VoteIDL as Vote, PROGRAM_ID, provider) as Program<Vote>;
-  }, [provider]);
-
-  return {
-    program,
-    connection,
-    provider,
-    isReady: !!program,
-  };
+  // ... rest remains the same
 };
-
-export type VoteProgram = ReturnType<typeof useProgram>["program"];

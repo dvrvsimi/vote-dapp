@@ -2,12 +2,14 @@
 import { useCallback, useState } from "react";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
 import { useProgram } from "./useProgram";
-import { useAppKitAccount } from '@reown/appkit/react';
+import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
+import type { Provider } from '@reown/appkit-adapter-solana';
 import { VoterStatus, ElectionVoter } from "../types/vote";
 
 export const useVoter = (electionPDA?: PublicKey) => {
   const { program } = useProgram();
   const { address } = useAppKitAccount();
+  const { walletProvider } = useAppKitProvider<Provider>('solana');
   const [isLoading, setIsLoading] = useState(false);
 
   const getElectionVoterPDA = useCallback(
@@ -21,6 +23,26 @@ export const useVoter = (electionPDA?: PublicKey) => {
     },
     [program]
   );
+
+  // Sign registration message
+  const signRegistrationMessage = async (voterPubkey: PublicKey) => {
+    if (!walletProvider) throw new Error("Wallet not connected");
+
+    const message = JSON.stringify({
+      type: 'VOTER_REGISTRATION',
+      voter: voterPubkey.toString(),
+      election: electionPDA?.toString(),
+      timestamp: new Date().toISOString()
+    });
+
+    const encodedMessage = new TextEncoder().encode(message);
+    const signature = await walletProvider.signMessage(encodedMessage);
+    
+    return {
+      signature,
+      message
+    };
+  };
 
   const registerVoter = useCallback(async () => {
     if (!program || !address || !electionPDA)
@@ -37,8 +59,15 @@ export const useVoter = (electionPDA?: PublicKey) => {
 
       if (!electionVoterPDA) throw new Error("Could not derive PDA");
 
+      // First sign the registration message
+      const { signature, message } = await signRegistrationMessage(voterPubkey);
+
+      // Create buffer from signature for on-chain storage/verification
+      const signatureBuffer = Buffer.from(signature);
+
+      // Send transaction with signature included
       const tx = await program.methods
-        .registerVoter()
+        .registerVoter(signatureBuffer)  // Add signature as instruction data
         .accounts({
           voter: voterPubkey,
           election: electionPDA,
@@ -48,15 +77,35 @@ export const useVoter = (electionPDA?: PublicKey) => {
         })
         .rpc();
 
-      return tx;
+      return {
+        transaction: tx,
+        signature: Buffer.from(signature).toString('base64'),
+        message
+      };
     } finally {
       setIsLoading(false);
     }
-  }, [program, address, electionPDA, getElectionVoterPDA]);
+  }, [program, address, electionPDA, getElectionVoterPDA, walletProvider]);
+
+  // Verify if a voter is registered
+  const verifyVoterRegistration = useCallback(async (voterPubkey: PublicKey) => {
+    if (!program || !electionPDA) return false;
+    
+    try {
+      const electionVoterPDA = getElectionVoterPDA(electionPDA, voterPubkey);
+      if (!electionVoterPDA) return false;
+
+      const voterAccount = await program.account.electionVoter.fetch(electionVoterPDA);
+      return voterAccount ? true : false;
+    } catch (error) {
+      return false;
+    }
+  }, [program, electionPDA, getElectionVoterPDA]);
 
   return {
     registerVoter,
     getElectionVoterPDA,
+    verifyVoterRegistration,
     isLoading,
   };
 };

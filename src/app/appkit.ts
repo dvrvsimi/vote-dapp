@@ -1,5 +1,5 @@
-// src/config/appkit.ts
-import { createAppKit } from '@reown/appkit'
+// src/app/appkit.ts
+import { createAppKit } from '@reown/appkit/react'
 import { SolanaAdapter } from '@reown/appkit-adapter-solana'
 import { solana, solanaDevnet } from '@reown/appkit/networks'
 

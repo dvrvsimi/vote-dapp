@@ -1,120 +1,93 @@
+// src/hooks/useUserVerification.ts
 import { useCallback, useState } from "react";
-import { PublicKey, SystemProgram } from "@solana/web3.js";
 import { useProgram } from "./useProgram";
-import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
-import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
-import type { Provider } from '@reown/appkit-adapter-solana/react';
-import { UserType, UserVerification } from "../types/vote";
+import { useAppKitProvider } from '@reown/appkit/react';
+import type { Provider } from '@reown/appkit-adapter-solana';
+import { PublicKey, SystemProgram } from "@solana/web3.js";
 
-// Helper type for program's enum representation
-type UserTypeEnum = { student: Record<string, never> } | { staff: Record<string, never> };
-
-export const useUserVerification = () => {
+export function useUserVerification() {
   const { program } = useProgram();
-  const { address } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider<Provider>('solana');
-  const { connection } = useAppKitConnection();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
 
-  const getVerificationPDA = useCallback(
-    (userPubkey: PublicKey) => {
-      if (!program) return null;
+  const signVerificationMessage = useCallback(async (idNumber: string, userType: string) => {
+    if (!walletProvider) throw new Error("Wallet not connected");
+    
+    const message = JSON.stringify({
+      type: 'USER_VERIFICATION',
+      idNumber,
+      userType,
+      timestamp: new Date().toISOString()
+    });
 
-      const [pda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("user_verification"), userPubkey.toBuffer()],
-        program.programId
-      );
-      return pda;
-    },
-    [program]
-  );
+    const encodedMessage = new TextEncoder().encode(message);
+    return await walletProvider.signMessage(encodedMessage);
+  }, [walletProvider]);
 
   const verifyUser = useCallback(
     async (idNumber: string, userType: "student" | "staff") => {
-      if (!program || !address || !walletProvider || !connection) {
-        throw new Error("Program, wallet, provider or connection not initialized");
-      }
-
+      if (!program || !walletProvider) throw new Error("Program not connected");
       setIsLoading(true);
-      setError(null);
 
       try {
-        const userPublicKey = new PublicKey(address);
-        const userVerificationPda = getVerificationPDA(userPublicKey);
-        if (!userVerificationPda) throw new Error("Could not derive PDA");
+        const signature = await signVerificationMessage(idNumber, userType);
+        const userTypeObj = userType === "student" ? { student: {} } : { staff: {} };
+        const [userVerificationPDA] = PublicKey.findProgramAddressSync(
+          [Buffer.from("user_verification"), Buffer.from(idNumber)],
+          program.programId
+        );
 
-        // Create the enum in the format Anchor expects
-        const userTypeEnum: UserTypeEnum = userType === "student" 
-          ? { student: {} }
-          : { staff: {} };
-
-        // Get the latest blockhash
-        const latestBlockhash = await connection.getLatestBlockhash();
-
-        // Get the transaction from program methods
         const tx = await program.methods
-          .verifyUser(idNumber, userTypeEnum)
+          .verifyUser(
+            idNumber, 
+            userTypeObj,
+            Buffer.from(signature).toString('base64'),
+            new Date().toISOString()
+          )
           .accounts({
-            user: userPublicKey,
-            userVerification: userVerificationPda,
+            userVerification: userVerificationPDA,
             systemProgram: SystemProgram.programId,
           })
-          .transaction();
+          .rpc();
 
-        // Set the blockhash and fee payer
-        tx.recentBlockhash = latestBlockhash.blockhash;
-        tx.feePayer = userPublicKey;
-
-        // Use AppKit's walletProvider to send transaction
-        const signature = await walletProvider.sendTransaction(tx, program.provider.connection);
-        
-        // Wait for confirmation
-        await connection.confirmTransaction(signature);
-        
-        return { signature };
-      } catch (err) {
-        setError(err as Error);
-        throw err;
+        return tx;
       } finally {
         setIsLoading(false);
       }
     },
-    [program, address, walletProvider, connection, getVerificationPDA]
+    [program, walletProvider, signVerificationMessage]
   );
 
   const fetchVerification = useCallback(
-    async (userPubkey: PublicKey): Promise<UserVerification | null> => {
+    async (userPubkey: PublicKey) => {
       if (!program) return null;
 
       try {
-        const pda = getVerificationPDA(userPubkey);
-        if (!pda) return null;
+        const [userVerificationPDA] = PublicKey.findProgramAddressSync(
+          [Buffer.from("user_verification"), userPubkey.toBuffer()],
+          program.programId
+        );
 
-        const verification = await program.account.userVerification.fetch(pda);
-        
-        // Convert program account format to our interface format
+        const account = await program.account.userVerification.fetch(
+          userVerificationPDA
+        );
+
         return {
-          user: verification.user,
-          idNumber: verification.idNumber,
-          userType: verification.userType as UserType,
-          isVerified: verification.isVerified,
-          verificationTime: verification.verificationTime.toNumber(),
-          bump: verification.bump,
+          isVerified: account.isVerified,
+          userType: account.userType,
+          signature: account.signature,
+          timestamp: account.signatureTimestamp,
         };
-      } catch (err) {
-        console.error("Error fetching verification:", err);
+      } catch (error) {
         return null;
       }
     },
-    [program, getVerificationPDA]
+    [program]
   );
 
   return {
     verifyUser,
     fetchVerification,
     isLoading,
-    error,
-    getVerificationPDA,
   };
-};
+}

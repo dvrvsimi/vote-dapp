@@ -1,7 +1,13 @@
+// src/app/election/create/page.tsx
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import CreateElectionForm from "@/components/election/create/CreateElectionForm";
 import { Toaster } from "sonner";
