@@ -1,22 +1,19 @@
-// useProgram.ts
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Program, AnchorProvider } from "@coral-xyz/anchor";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
-import type { Provider } from '@reown/appkit-adapter-solana/react';
+import type { Provider } from '@reown/appkit-adapter-solana';
 import { Vote } from "../../anchor/target/types/vote";
 import VoteIDL from "../../anchor/target/idl/vote.json";
 
 export const PROGRAM_ID = new PublicKey(VoteIDL.address);
 
-// useProgram.ts
-// ... previous imports remain the same
-
 export const useProgram = () => {
   const { address } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider<Provider>('solana');
   const { connection } = useAppKitConnection();
+  const [program, setProgram] = useState<Program<Vote> | null>(null);
 
   const provider = useMemo(() => {
     if (!walletProvider || !address || !connection) {
@@ -29,7 +26,6 @@ export const useProgram = () => {
       connection,
       {
         publicKey: userPublicKey,
-        // Modify the signTransaction implementation
         signTransaction: async (tx: Transaction) => {
           try {
             const signedTx = await walletProvider.signTransaction(tx);
@@ -39,7 +35,6 @@ export const useProgram = () => {
             throw error;
           }
         },
-        // Modify the signAllTransactions implementation
         signAllTransactions: async (txs: Transaction[]) => {
           try {
             const signedTxs = await walletProvider.signAllTransactions(txs);
@@ -54,5 +49,27 @@ export const useProgram = () => {
     );
   }, [connection, walletProvider, address]);
 
-  // ... rest remains the same
+  useEffect(() => {
+    if (provider) {
+      try {
+        const programInstance = new Program(
+          VoteIDL as any,
+          PROGRAM_ID,
+          provider
+        );
+        setProgram(programInstance);
+      } catch (error) {
+        console.error('Failed to initialize program:', error);
+        setProgram(null);
+      }
+    } else {
+      setProgram(null);
+    }
+  }, [provider]);
+
+  return {
+    program,
+    provider,
+    connected: !!address && !!walletProvider && !!connection
+  };
 };

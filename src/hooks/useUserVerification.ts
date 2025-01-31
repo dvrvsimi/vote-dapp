@@ -1,4 +1,3 @@
-// src/hooks/useUserVerification.ts
 import { useCallback, useState } from "react";
 import { useProgram } from "./useProgram";
 import { useAppKitProvider } from '@reown/appkit/react';
@@ -6,12 +5,15 @@ import type { Provider } from '@reown/appkit-adapter-solana';
 import { PublicKey, SystemProgram } from "@solana/web3.js";
 
 export function useUserVerification() {
-  const { program } = useProgram();
+  const { program, connected } = useProgram();
   const { walletProvider } = useAppKitProvider<Provider>('solana');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const signVerificationMessage = useCallback(async (idNumber: string, userType: string) => {
-    if (!walletProvider) throw new Error("Wallet not connected");
+    if (!walletProvider) {
+      throw new Error("Wallet not connected");
+    }
     
     const message = JSON.stringify({
       type: 'USER_VERIFICATION',
@@ -26,8 +28,18 @@ export function useUserVerification() {
 
   const verifyUser = useCallback(
     async (idNumber: string, userType: "student" | "staff") => {
-      if (!program || !walletProvider) throw new Error("Program not connected");
+      if (!connected) {
+        setError("Please connect your wallet first");
+        return null;
+      }
+
+      if (!program) {
+        setError("Program not initialized");
+        return null;
+      }
+
       setIsLoading(true);
+      setError(null);
 
       try {
         const signature = await signVerificationMessage(idNumber, userType);
@@ -51,11 +63,15 @@ export function useUserVerification() {
           .rpc();
 
         return tx;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+        setError(errorMessage);
+        return null;
       } finally {
         setIsLoading(false);
       }
     },
-    [program, walletProvider, signVerificationMessage]
+    [program, connected, signVerificationMessage]
   );
 
   const fetchVerification = useCallback(
@@ -89,5 +105,7 @@ export function useUserVerification() {
     verifyUser,
     fetchVerification,
     isLoading,
+    error,
+    connected
   };
 }

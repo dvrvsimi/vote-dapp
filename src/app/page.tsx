@@ -1,5 +1,4 @@
-// src/app/page.tsx
-"use client";
+'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -8,7 +7,8 @@ import {
   ArrowRight, 
   Vote,
   Shield,
-  Users 
+  Users,
+  PlusCircle 
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -49,6 +49,14 @@ export default function HomePage() {
     checkStatus();
   }, [address, fetchVerification]);
 
+  const handleCreateElection = () => {
+    if (!isVerified) {
+      router.push('/verify');
+    } else {
+      router.push('/election/create');
+    }
+  };
+
   if (isChecking) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-slate-900 to-black">
@@ -71,7 +79,7 @@ export default function HomePage() {
           <Alert className="bg-purple-900/50 border border-purple-500/50 backdrop-blur-sm text-white">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Please connect your wallet to access voter verification.
+              Please connect your wallet to access the voting system.
             </AlertDescription>
           </Alert>
         </div>
@@ -84,11 +92,24 @@ export default function HomePage() {
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="flex items-center space-x-3 mb-12">
-            <Vote className="h-8 w-8 text-purple-400" />
-            <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-              Decentralized Voting
-            </h1>
+          <div className="flex items-center justify-between mb-12">
+            <div className="flex items-center space-x-3">
+              <Vote className="h-8 w-8 text-purple-400" />
+              <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                Decentralized Voting
+              </h1>
+            </div>
+            
+            {/* Create Election Button */}
+            <button
+              onClick={handleCreateElection}
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 
+                       transition-all duration-300 text-white shadow-lg hover:shadow-xl
+                       hover:shadow-purple-500/20"
+            >
+              <PlusCircle className="h-5 w-5" />
+              <span>{isVerified ? "Create Election" : "Verify to Create"}</span>
+            </button>
           </div>
 
           <div className="grid gap-8">
@@ -105,7 +126,7 @@ export default function HomePage() {
                         Verification Complete
                       </h2>
                       <p className="text-black">
-                        Your wallet is verified for participation in the voting system.
+                        Your wallet is verified. You can now create and participate in elections.
                       </p>
                     </div>
                   </div>
@@ -127,11 +148,11 @@ export default function HomePage() {
                         <div>
                           <h2 className="text-xl font-semibold text-black group-hover:text-white transition-colors duration-300 mb-1
                                        transform group-hover:translate-x-2">
-                            Start Verification
+                            Required: Verify Your Wallet
                           </h2>
                           <p className="text-black group-hover:text-purple-200 transition-all duration-300
                                       transform group-hover:translate-x-2">
-                            Complete your one-time wallet verification process
+                            Verification required to create and participate in elections
                           </p>
                         </div>
                       </div>

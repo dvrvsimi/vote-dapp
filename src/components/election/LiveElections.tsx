@@ -1,150 +1,145 @@
-// src/components/election/LiveElections.tsx
-"use client";
+'use client';
 
-import { useRouter } from 'next/navigation';
-import { format } from 'date-fns';
-import { Vote, Crown, Users, CheckCircle, XCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
 
-interface ElectionData {
-    type: 'new_election' | 'election_ended';
-    signature: string;
-    blockTime: number;
-    accounts: {
-        election: string;
-        authority: string;
-    };
-    status?: 'active' | 'ended';
-    votesCount?: number;
-}
+const RECONNECT_DELAY = 3000; // 3 seconds
 
 export function LiveElections() {
-    const router = useRouter();
-    const [elections, setElections] = useState<ElectionData[]>([]);
+    const { connection } = useAppKitConnection();
     const [isConnected, setIsConnected] = useState(false);
-    const [ws, setWs] = useState<WebSocket | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [retryCount, setRetryCount] = useState(0);
+    const MAX_RETRIES = 5;
+
+    const setupWebSocket = useCallback(() => {
+        if (!connection) {
+            setError('No connection available');
+            return;
+        }
+
+        try {
+            const wsEndpoint = connection.rpcEndpoint.replace('http', 'ws');
+            const ws = new WebSocket(wsEndpoint);
+
+            ws.onopen = () => {
+                console.log('✅ WebSocket connected');
+                setIsConnected(true);
+                setError(null);
+                setRetryCount(0);
+                
+                // Subscribe to program account changes
+                ws.send(JSON.stringify({
+                    jsonrpc: '2.0',
+                    id: 1,
+                    method: 'programSubscribe',
+                    params: [
+                        // Your program ID here
+                        'YOUR_PROGRAM_ID',
+                        {
+                            encoding: 'jsonParsed',
+                            commitment: 'confirmed'
+                        }
+                    ]
+                }));
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket closed');
+                setIsConnected(false);
+                
+                // Attempt to reconnect if under max retries
+                if (retryCount < MAX_RETRIES) {
+                    setTimeout(() => {
+                        setRetryCount(prev => prev + 1);
+                        setupWebSocket();
+                    }, RECONNECT_DELAY);
+                } else {
+                    setError('Max reconnection attempts reached');
+                }
+            };
+
+            ws.onerror = (event) => {
+                console.error('WebSocket error:', event);
+                setError('WebSocket connection failed');
+                setIsConnected(false);
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.method === 'programNotification') {
+                        // Handle program updates
+                        console.log('Program update:', data.params);
+                        // Update your UI state here
+                    }
+                } catch (err) {
+                    console.error('Failed to parse WebSocket message:', err);
+                }
+            };
+
+            // Cleanup function
+            return () => {
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.close();
+                }
+            };
+        } catch (err) {
+            console.error('Failed to setup WebSocket:', err);
+            setError('Failed to setup WebSocket connection');
+            return undefined;
+        }
+    }, [connection, retryCount]);
 
     useEffect(() => {
-        const wsConnection = new WebSocket('wss://fd6d-197-211-59-134.ngrok-free.app');
-        setWs(wsConnection);
-
-        wsConnection.onopen = () => {
-            console.log('✅ Connected to voting WebSocket');
-            setIsConnected(true);
-            wsConnection.send(JSON.stringify({ type: 'subscribe', channel: 'elections' }));
-        };
-
-        wsConnection.onmessage = (event) => {
-            try {
-                const { channel, data } = JSON.parse(event.data);
-                console.log(`📩 Received message on channel ${channel}:`, data);
-
-                if (channel === 'elections') {
-                    if (data.type === 'new_election') {
-                        setElections(prev => [{...data, status: 'active', votesCount: 0}, ...prev]);
-                    } else if (data.type === 'election_ended') {
-                        setElections(prev => prev.map(election => 
-                            election.accounts.election === data.accounts.election 
-                                ? { ...election, status: 'ended' } 
-                                : election
-                        ));
-                    }
-                }
-            } catch (error) {
-                console.error('❌ Error handling WebSocket message:', error);
+        const cleanup = setupWebSocket();
+        return () => {
+            if (cleanup) {
+                cleanup();
             }
         };
+    }, [setupWebSocket]);
 
-        wsConnection.onclose = () => {
-            console.log('🔌 WebSocket connection closed');
-            setIsConnected(false);
-        };
+    // Connection status indicator
+    const connectionStatus = () => {
+        if (error) {
+            return (
+                <div className="p-4 bg-red-100 text-red-700 rounded-md">
+                    Error: {error}
+                </div>
+            );
+        }
 
-        wsConnection.onerror = (error) => {
-            console.error('❌ WebSocket error:', error);
-            setIsConnected(false);
-        };
+        if (!isConnected) {
+            return (
+                <div className="p-4 bg-yellow-100 text-yellow-700 rounded-md">
+                    Connecting to election updates...
+                </div>
+            );
+        }
 
-        return () => {
-            wsConnection.close();
-        };
-    }, []);
-
-    const handleElectionClick = (election: ElectionData) => {
-        console.log('🗳️ Election clicked:', election);
-        router.push(`/election/${election.accounts.election}`);
-    };
-
-    if (!isConnected || elections.length === 0) {
         return (
-            <div className="p-8 border border-dashed border-purple-500/20 rounded-lg text-center 
-                           bg-gradient-to-r from-purple-50/50 to-pink-50/50">
-                <p className="text-purple-500">
-                    {!isConnected ? 'Connecting to election updates...' : 'No active elections at the moment'}
-                </p>
+            <div className="p-4 bg-green-100 text-green-700 rounded-md">
+                Connected to election updates
             </div>
         );
-    }
+    };
 
     return (
-        <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
-            <div className="grid gap-4 pr-2">
-                {elections.map((election) => (
-                    <div 
-                        key={election.signature}
-                        onClick={() => handleElectionClick(election)}
-                        className="p-4 bg-gradient-to-r from-purple-50/90 to-pink-50/90 
-                                 rounded-lg border border-purple-500/20 backdrop-blur-sm
-                                 hover:shadow-md hover:border-purple-500/30 transition-all duration-300
-                                 group cursor-pointer"
-                    >
-                        <div className="flex justify-between items-start">
-                            <div className="space-y-2">
-                                <div className="flex items-center space-x-2">
-                                    <h3 className="font-semibold text-transparent bg-clip-text 
-                                                 bg-gradient-to-r from-purple-600 to-pink-600 flex items-center gap-2">
-                                        {election.status === 'ended' ? (
-                                            <XCircle className="h-4 w-4 text-red-500" />
-                                        ) : (
-                                            <CheckCircle className="h-4 w-4 text-green-500" />
-                                        )}
-                                        {election.status === 'ended' ? 'Ended Election' : 'Active Election'}
-                                    </h3>
-                                </div>
-                                
-                                <div className="flex items-center space-x-2 text-sm text-purple-900/70">
-                                    <Crown className="h-4 w-4" />
-                                    <p className="truncate">
-                                        {election.accounts.authority.slice(0, 4)}...{election.accounts.authority.slice(-4)}
-                                    </p>
-                                </div>
-                                
-                                <div className="flex items-center space-x-2 text-sm text-purple-900/70">
-                                    <Vote className="h-4 w-4" />
-                                    <p className="truncate">
-                                        {election.accounts.election.slice(0, 4)}...{election.accounts.election.slice(-4)}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="text-right space-y-1">
-                                <span className="text-xs text-gray-500">
-                                    {format(new Date(election.blockTime * 1000), 'MMM d, HH:mm:ss')}
-                                </span>
-                                {election.votesCount !== undefined && (
-                                    <div className="flex items-center justify-end text-xs text-purple-600">
-                                        <Users className="h-3 w-3 mr-1" />
-                                        {election.votesCount} votes
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        
-                        <div className="mt-2 pt-2 border-t border-purple-100 hidden group-hover:block">
-                            <p className="text-xs text-purple-600">Click to view details</p>
-                        </div>
+        <div className="space-y-4">
+            {connectionStatus()}
+            
+            {/* Your election updates UI here */}
+            <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold mb-4">Live Elections</h2>
+                {isConnected ? (
+                    // Your elections list/grid here
+                    <div>Election updates will appear here...</div>
+                ) : (
+                    <div className="text-gray-500">
+                        Waiting for connection...
                     </div>
-                ))}
+                )}
             </div>
         </div>
     );

@@ -21,35 +21,23 @@ const Header = () => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isVerified, setIsVerified] = useState<boolean>(false);
+  
+  // Only get address, don't check connection status
   const { address } = useAppKitAccount();
   const { fetchVerification } = useUserVerification();
 
-
-  // Log address changes
-  useEffect(() => {
-    console.log("Address changed:", address);
-  }, [address]);
-
-  // Check verification status when wallet changes
+  // Only check verification when we have an address
   useEffect(() => {
     const checkVerificationStatus = async () => {
+      if (!address) {
+        setIsVerified(false);
+        return;
+      }
+
       try {
-        if (!address) {
-          console.log("No address found, setting isVerified to false");
-          setIsVerified(false);
-          return;
-        }
-
-        console.log("Converting address to PublicKey:", address);
         const publicKey = new PublicKey(address);
-
-        console.log("Fetching verification for address:", publicKey.toString());
         const verificationResult = await fetchVerification(publicKey);
-        console.log("Verification result:", verificationResult);
-
-
         const newVerificationStatus = !!verificationResult?.isVerified;
-        console.log("Setting isVerified to:", newVerificationStatus);
         setIsVerified(newVerificationStatus);
       } catch (error) {
         console.error('Verification check failed:', error);
@@ -59,21 +47,6 @@ const Header = () => {
 
     checkVerificationStatus();
   }, [address, fetchVerification]);
-
-  // Log whenever isVerified changes
-  useEffect(() => {
-    console.log("isVerified state changed to:", isVerified);
-  }, [isVerified]);
-
-
-  // Log navigation state
-  useEffect(() => {
-    console.log("Navigation items:", navigation.map(item => ({
-      name: item.name,
-      hidden: item.hidden,
-      disabled: item.disabled
-    })));
-  }, [isVerified]);
 
   const navigation: NavigationItem[] = [
     { 
